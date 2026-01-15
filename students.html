@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; }
+    table { border-collapse: collapse; width: 50%; margin-top: 20px; }
     th, td { border: 1px solid #333; padding: 10px; text-align: left; }
     th { background-color: #f2f2f2; }
   </style>
@@ -30,11 +30,13 @@
 
 <a href="dashboard.html">Back</a>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
-  const firebaseConfig = {
+<script>
+  // 🔴 Paste your Firebase config here
+const firebaseConfig = {
   apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
   authDomain: "studentplanner-d0933.firebaseapp.com",
   projectId: "studentplanner-d0933",
@@ -44,27 +46,36 @@
   measurementId: "G-F8B40LEWVP"
 };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  document.addEventListener("DOMContentLoaded", () => {
+  window.addEventListener("DOMContentLoaded", () => {
     const table = document.getElementById("studentTable");
 
-    getDocs(collection(db, "students"))
+    db.collection("students").get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          table.innerHTML += `
-            <tr>
-              <td>${data.Name}</td>
-              <td>${data.StudentId}</td>
-              <td>${data.Status}</td>
-            </tr>
-          `;
+          const row = document.createElement("tr");
+
+          const cellName = document.createElement("td");
+          cellName.textContent = data.Name;
+          row.appendChild(cellName);
+
+          const cellId = document.createElement("td");
+          cellId.textContent = data.StudentId;
+          row.appendChild(cellId);
+
+          const cellStatus = document.createElement("td");
+          cellStatus.textContent = data.Status;
+          row.appendChild(cellStatus);
+
+          table.appendChild(row);
         });
       })
       .catch((error) => {
-        console.error(error);
+        console.error("Firestore error:", error);
         alert("Failed to load students");
       });
   });
