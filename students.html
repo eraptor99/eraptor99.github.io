@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 50%; margin-top: 20px; }
+    table { border-collapse: collapse; width: 60%; margin-top: 20px; }
     th, td { border: 1px solid #333; padding: 10px; text-align: left; }
     th { background-color: #f2f2f2; }
   </style>
@@ -30,12 +30,12 @@
 
 <a href="dashboard.html">Back</a>
 
-<!-- Classic Firebase SDK -->
+<!-- 🔹 Classic Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // 🔴 Paste your Firebase config here
+  // 🔹 Your Firebase config
   const firebaseConfig = {
   apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
   authDomain: "studentplanner-d0933.firebaseapp.com",
@@ -45,13 +45,16 @@
   appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7",
   measurementId: "G-F8B40LEWVP"
 };
+
   // Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  // Wait for page to load
   window.addEventListener("DOMContentLoaded", () => {
     const table = document.getElementById("studentTable");
 
+    // Get all documents from "students" collection
     db.collection("students").get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
@@ -59,15 +62,15 @@
           const row = document.createElement("tr");
 
           const cellName = document.createElement("td");
-          cellName.textContent = data.Name;
+          cellName.textContent = data.Name;       // Matches Firestore field
           row.appendChild(cellName);
 
           const cellId = document.createElement("td");
-          cellId.textContent = data.StudentId;
+          cellId.textContent = data.StudentId;   // Matches Firestore field
           row.appendChild(cellId);
 
           const cellStatus = document.createElement("td");
-          cellStatus.textContent = data.Status;
+          cellStatus.textContent = data.Status;   // Matches Firestore field
           row.appendChild(cellStatus);
 
           table.appendChild(row);
