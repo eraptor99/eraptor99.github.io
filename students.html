@@ -30,12 +30,12 @@
 
 <a href="dashboard.html">Back</a>
 
-<!-- ✅ Classic Firebase SDK -->
+<!-- ✅ Classic Firebase compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // 🔹 Your Firebase config
+  // 🔹 Your Firebase config (replace with your own)
   const firebaseConfig = {
   apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
   authDomain: "studentplanner-d0933.firebaseapp.com",
@@ -50,6 +50,7 @@
   const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  // Load student data
   window.addEventListener("DOMContentLoaded", () => {
     const table = document.getElementById("studentTable");
 
