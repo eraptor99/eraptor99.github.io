@@ -8,13 +8,51 @@
 
 <h3>Student List</h3>
 
-<table class="table">
-  <tr><th>Name</th><th>ID</th><th>Status</th></tr>
-  <tr><td>Ali</td><td>S001</td><td>Active</td></tr>
-  <tr><td>Aisyah</td><td>S002</td><td>Active</td></tr>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>ID</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="studentTable">
+  </tbody>
 </table>
 
 <a href="dashboard.html">Back</a>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
+  authDomain: "studentplanner-d0933.firebaseapp.com",
+  projectId: "studentplanner-d0933",
+  storageBucket: "studentplanner-d0933.firebasestorage.app",
+  messagingSenderId: "734911455270",
+  appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7",
+  measurementId: "G-F8B40LEWVP"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const table = document.getElementById("studentTable");
+
+const querySnapshot = await getDocs(collection(db, "students"));
+querySnapshot.forEach((doc) => {
+  const data = doc.data();
+  table.innerHTML += `
+    <tr>
+      <td>${data.name}</td>
+      <td>${data.studentId}</td>
+      <td>${data.status}</td>
+    </tr>
+  `;
+});
+</script>
 
 </body>
 </html>
