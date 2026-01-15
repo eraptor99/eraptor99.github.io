@@ -1,36 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Dashboard cards styling */
+    .dashboard-cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .dashboard-card {
+      flex: 1 1 200px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+      color: #007bff;
+    }
+
+    .dashboard-card h3 {
+      margin-bottom: 10px;
+      color: #007bff;
+    }
+  </style>
 </head>
 <body class="p-4">
 
-<h2>Student Dashboard</h2>
+<!-- Header with Logout top-right -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Student Dashboard</h2>
+  <button id="logoutBtn" class="btn btn-danger">Logout</button>
+</div>
 
-<ul class="list-group mb-3">
-  <li class="list-group-item"><a href="students.html">Student List</a></li>
-  <li class="list-group-item"><a href="schedule.html">Class Schedule</a></li>
-</ul>
+<!-- Dashboard cards -->
+<div class="dashboard-cards">
+  <a href="students.html" class="dashboard-card">
+    <h3>Student List</h3>
+    View all students
+  </a>
 
-<button id="logoutBtn" class="btn btn-danger">Logout</button>
+  <a href="schedule.html" class="dashboard-card">
+    <h3>Class Schedule</h3>
+    Check the weekly timetable
+  </a>
+</div>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script>
-  // 🔹 Your Firebase config
+  // 🔹 Firebase config
   const firebaseConfig = {
-  apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
-  authDomain: "studentplanner-d0933.firebaseapp.com",
-  projectId: "studentplanner-d0933",
-  storageBucket: "studentplanner-d0933.firebasestorage.app",
-  messagingSenderId: "734911455270",
-  appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7",
-  measurementId: "G-F8B40LEWVP"
-};
+    apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
+    authDomain: "studentplanner-d0933.firebaseapp.com",
+    projectId: "studentplanner-d0933",
+    storageBucket: "studentplanner-d0933.firebasestorage.app",
+    messagingSenderId: "734911455270",
+    appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7",
+    measurementId: "G-F8B40LEWVP"
+  };
 
   // Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
