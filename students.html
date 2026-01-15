@@ -30,7 +30,7 @@
 
 <a href="dashboard.html">Back</a>
 
-<!-- 🔹 Classic Firebase SDK -->
+<!-- ✅ Classic Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -50,37 +50,32 @@
   const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // Wait for page to load
   window.addEventListener("DOMContentLoaded", () => {
     const table = document.getElementById("studentTable");
 
-    // Get all documents from "students" collection
-   db.collection("students").get()
-  .then((querySnapshot) => {
-    console.log("Number of documents:", querySnapshot.size);  // <- check this
-    querySnapshot.forEach((doc) => {
-      console.log("DOC DATA:", doc.data());
-      const data = doc.data();
-      const row = document.createElement("tr");
-      const cellName = document.createElement("td");
-      cellName.textContent = data.Name;
-      row.appendChild(cellName);
+    db.collection("students").get()
+      .then((querySnapshot) => {
+        console.log("Number of documents:", querySnapshot.size); // debug
+        querySnapshot.forEach((doc) => {
+          console.log("DOC DATA:", doc.data()); // debug
+          const data = doc.data();
 
-      const cellId = document.createElement("td");
-      cellId.textContent = data.StudentId;
-      row.appendChild(cellId);
+          const row = document.createElement("tr");
 
-      const cellStatus = document.createElement("td");
-      cellStatus.textContent = data.Status;
-      row.appendChild(cellStatus);
+          const cellName = document.createElement("td");
+          cellName.textContent = data.Name;
+          row.appendChild(cellName);
 
-      table.appendChild(row);
-    });
-  })
-  .catch((error) => {
-    console.error("Firestore error:", error);
-    alert("Failed to load students");
-  });
+          const cellId = document.createElement("td");
+          cellId.textContent = data.StudentId;
+          row.appendChild(cellId);
+
+          const cellStatus = document.createElement("td");
+          cellStatus.textContent = data.Status;
+          row.appendChild(cellStatus);
+
+          table.appendChild(row);
+        });
       })
       .catch((error) => {
         console.error("Firestore error:", error);
