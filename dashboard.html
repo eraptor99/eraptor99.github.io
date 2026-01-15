@@ -8,10 +8,48 @@
 
 <h2>Student Dashboard</h2>
 
-<ul>
-  <li><a href="students.html">Student List</a></li>
-  <li><a href="schedule.html">Class Schedule</a></li>
+<ul class="list-group mb-3">
+  <li class="list-group-item"><a href="students.html">Student List</a></li>
+  <li class="list-group-item"><a href="schedule.html">Class Schedule</a></li>
 </ul>
+
+<button id="logoutBtn" class="btn btn-danger">Logout</button>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+  // 🔹 Your Firebase config
+  const firebaseConfig = {
+  apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
+  authDomain: "studentplanner-d0933.firebaseapp.com",
+  projectId: "studentplanner-d0933",
+  storageBucket: "studentplanner-d0933.firebasestorage.app",
+  messagingSenderId: "734911455270",
+  appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7",
+  measurementId: "G-F8B40LEWVP"
+};
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // 🔹 Protect page: redirect to login if not logged in
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  });
+
+  // 🔹 Logout button
+  const logoutBtn = document.getElementById("logoutBtn");
+  logoutBtn.addEventListener("click", () => {
+    auth.signOut().then(() => {
+      window.location.href = "login.html";
+    });
+  });
+</script>
 
 </body>
 </html>
