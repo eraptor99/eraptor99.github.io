@@ -46,9 +46,9 @@ querySnapshot.forEach((doc) => {
   const data = doc.data();
   table.innerHTML += `
     <tr>
-      <td>${data.name}</td>
-      <td>${data.studentId}</td>
-      <td>${data.status}</td>
+        <td>${data.Name}</td>
+        <td>${data.StudentID}</td>
+        <td>${data.Status}</td>
     </tr>
   `;
 });
