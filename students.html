@@ -66,16 +66,10 @@
       getDocs(collection(db, "students"))
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            table.innerHTML += `
-              <tr>
-                <td>${data.Name}</td>
-                <td>${data.StudentID}</td>
-                <td>${data.Status}</td>
-              </tr>
-            `;
-          });
-        })
+  const data = doc.data();
+  console.log("DOC DATA:", data);
+  console.log("FIELDS:", Object.keys(data));
+});
         .catch((error) => {
           console.error(error);
           alert("Failed to load students");
