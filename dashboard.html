@@ -5,81 +5,108 @@
   <title>Student Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
   <style>
-    .card { border-radius: 12px; }
-    .btn-rounded { border-radius: 8px; }
-    #announcementList li:hover { background-color: #f0f8ff; }
-    .badge-active { background-color: #28a745; color: white; }
-    .badge-inactive { background-color: #dc3545; color: white; }
+    body {
+      background-color: #f8f9fa;
+    }
+    .card {
+      border-radius: 14px;
+    }
+    .btn-rounded {
+      border-radius: 8px;
+    }
+    #announcementList li:hover {
+      background-color: #f0f8ff;
+      cursor: pointer;
+    }
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+    }
+    footer a {
+      color: #6c757d;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
-<body class="p-4 bg-light">
+
+<body class="p-4">
 
 <div class="container">
 
+  
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>📊 Student Dashboard</h2>
     <button id="logoutBtn" class="btn btn-danger btn-rounded">Logout</button>
   </div>
 
-  <div class="row mb-4">
+  
+  <div class="row mb-4 g-4">
     <div class="col-md-6">
-      <div class="card shadow-sm p-3 text-center">
+      <div class="card shadow-sm p-4 text-center h-100">
         <h4>👩‍🎓 Students</h4>
-        <p>View and manage students</p>
-        <a href="students.html" class="btn btn-primary btn-rounded">Go</a>
+        <p>View, add, edit and delete student records</p>
+        <a href="students.html" class="btn btn-primary btn-rounded">Go to Students</a>
       </div>
     </div>
+
     <div class="col-md-6">
-      <div class="card shadow-sm p-3 text-center">
+      <div class="card shadow-sm p-4 text-center h-100">
         <h4>📅 Schedule</h4>
-        <p>View and manage class schedule</p>
-        <a href="schedule.html" class="btn btn-primary btn-rounded">Go</a>
+        <p>Manage class schedules and timing</p>
+        <a href="schedule.html" class="btn btn-primary btn-rounded">Go to Schedule</a>
       </div>
     </div>
   </div>
-    <div class="col-md-3">
-    <div class="card shadow-sm p-3 text-center h-100">
-      <h4>ℹ️ About</h4>
-      <p>About this website</p>
-      <a href="about.html" class="btn btn-secondary btn-rounded">Open</a>
-    </div>
-  </div>
 
-  <div class="col-md-3">
-    <div class="card shadow-sm p-3 text-center h-100">
-      <h4>✉️ Contact</h4>
-      <p>Send a message</p>
-      <a href="contact.html" class="btn btn-secondary btn-rounded">Open</a>
-    </div>
-  </div>
-</div>
-
+  
   <div class="card shadow-sm">
     <div class="card-body">
-      <h4>📢 Announcements</h4>
+      <h4 class="mb-3">📢 Announcements</h4>
 
       <ul id="announcementList" class="list-group mb-3"></ul>
 
-      <form id="announcementForm" class="d-flex gap-2 mb-2">
-        <input type="text" id="annTitle" class="form-control" placeholder="Title" required>
-        <input type="text" id="annMessage" class="form-control" placeholder="Message" required>
-        <button class="btn btn-success btn-rounded">Save</button>
+      <form id="announcementForm" class="row g-2">
+        <div class="col-md-4">
+          <input type="text" id="annTitle" class="form-control" placeholder="Title" required>
+        </div>
+        <div class="col-md-6">
+          <input type="text" id="annMessage" class="form-control" placeholder="Message" required>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button class="btn btn-success btn-rounded">Save</button>
+        </div>
       </form>
     </div>
   </div>
 
+  
+  <footer class="text-center text-muted">
+    <p class="mb-1">Student Planner Website</p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="about.html">About</a>
+      <span>|</span>
+      <a href="contact.html">Contact</a>
+    </div>
+    <small class="d-block mt-2">&copy; 2026 Student Project</small>
+  </footer>
+
 </div>
+
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
- 
   const firebaseConfig = {
     apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
     authDomain: "studentplanner-d0933.firebaseapp.com",
@@ -89,8 +116,7 @@
     appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7"
   };
 
-  
-  const app = firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
 
@@ -104,23 +130,24 @@
     auth.signOut().then(() => window.location.href = "login.html");
   });
 
-  
   const annList = document.getElementById("announcementList");
   const annForm = document.getElementById("announcementForm");
   const annTitle = document.getElementById("annTitle");
   const annMessage = document.getElementById("annMessage");
 
-  let editAnnId = null; // 
+  let editAnnId = null;
 
-  
   function loadAnnouncements() {
     annList.innerHTML = "";
-    db.collection("announcements").orderBy("timestamp", "desc").get()
+    db.collection("announcements")
+      .orderBy("timestamp", "desc")
+      .get()
       .then(snapshot => {
         snapshot.forEach(doc => {
           const a = doc.data();
           const li = document.createElement("li");
           li.className = "list-group-item d-flex justify-content-between align-items-center";
+
           li.innerHTML = `
             <div><strong>${a.title}</strong>: ${a.message}</div>
             <div>
@@ -129,16 +156,14 @@
             </div>
           `;
 
-          
           li.querySelector(".btn-warning").addEventListener("click", () => {
             annTitle.value = a.title;
             annMessage.value = a.message;
             editAnnId = doc.id;
           });
 
-          
           li.querySelector(".btn-danger").addEventListener("click", () => {
-            if(confirm(`Delete announcement "${a.title}"?`)) {
+            if (confirm("Delete this announcement?")) {
               db.collection("announcements").doc(doc.id).delete().then(loadAnnouncements);
             }
           });
@@ -148,9 +173,8 @@
       });
   }
 
-  loadAnnouncements(); 
+  loadAnnouncements();
 
-  
   annForm.addEventListener("submit", e => {
     e.preventDefault();
     const data = {
@@ -159,7 +183,7 @@
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    if(editAnnId) {
+    if (editAnnId) {
       db.collection("announcements").doc(editAnnId).set(data).then(() => {
         annForm.reset();
         editAnnId = null;
