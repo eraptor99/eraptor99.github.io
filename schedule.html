@@ -35,7 +35,7 @@
     <div class="card-body">
       <form id="scheduleForm" class="row g-3">
 
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label">Subject</label>
           <input type="text" class="form-control" id="subject" placeholder="e.g. Math" required>
         </div>
@@ -53,9 +53,13 @@
         </div>
 
         <div class="col-md-2">
-          <label class="form-label">Time</label>
-          <!-- Plain text so we can enter ranges like "09:00 - 10:30" -->
-          <input type="text" class="form-control" id="time" placeholder="09:00 - 10:30" required>
+          <label class="form-label">Start Time</label>
+          <input type="time" class="form-control" id="startTime" required>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">End Time</label>
+          <input type="time" class="form-control" id="endTime" required>
         </div>
 
         <div class="col-md-2">
@@ -63,9 +67,9 @@
           <input type="text" class="form-control" id="room" placeholder="e.g. Room 101" required>
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-1">
           <label class="form-label">Lecturer</label>
-          <input type="text" class="form-control" id="lecturer" placeholder="e.g. Mr. Ali" required>
+          <input type="text" class="form-control" id="lecturer" placeholder="Mr. Ali" required>
         </div>
 
         <div class="col-12">
@@ -119,34 +123,39 @@
 
   const subjectInput = document.getElementById("subject");
   const dayInput = document.getElementById("day");
-  const timeInput = document.getElementById("time");
+  const startTimeInput = document.getElementById("startTime");
+  const endTimeInput = document.getElementById("endTime");
   const roomInput = document.getElementById("room");
   const lecturerInput = document.getElementById("lecturer");
 
   let editId = null;
 
-  // Load schedule
   function loadSchedule() {
     table.innerHTML = "";
     db.collection("schedule").orderBy("day").get()
       .then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data();
+
+          // Fallback for old entries
+          const subject = data.subject || data.Subject || "-";
+          const day = data.day || data.Day || "-";
+          const time = data.time || data.Time || "-";
+          const room = data.room || data.Room || data.Classroom || "-";
+          const lecturer = data.lecturer || data.Lecturer || "-";
+
           const row = document.createElement("tr");
 
-          const room = data.room || "-";
-          const lecturer = data.lecturer || "-";
-
-          // Badge for subject type
+          // Badge for subject
           let badgeClass = "badge-subject bg-secondary";
-          if(data.subject.toLowerCase().includes("math")) badgeClass = "badge-subject badge-math";
-          else if(data.subject.toLowerCase().includes("science")) badgeClass = "badge-subject badge-science";
-          else if(data.subject.toLowerCase().includes("english")) badgeClass = "badge-subject badge-english";
+          if(subject.toLowerCase().includes("math")) badgeClass = "badge-subject badge-math";
+          else if(subject.toLowerCase().includes("science")) badgeClass = "badge-subject badge-science";
+          else if(subject.toLowerCase().includes("english")) badgeClass = "badge-subject badge-english";
 
           row.innerHTML = `
-            <td><span class="${badgeClass}">${data.subject}</span></td>
-            <td>${data.day}</td>
-            <td>${data.time}</td>
+            <td><span class="${badgeClass}">${subject}</span></td>
+            <td>${day}</td>
+            <td>${time}</td>
             <td>${room}</td>
             <td>${lecturer}</td>
             <td>
@@ -157,9 +166,14 @@
 
           // Edit
           row.querySelector(".btn-warning").addEventListener("click", () => {
-            subjectInput.value = data.subject;
-            dayInput.value = data.day;
-            timeInput.value = data.time;
+            subjectInput.value = subject;
+            dayInput.value = day;
+
+            // Split time for start/end inputs
+            const times = time.split(" - ");
+            startTimeInput.value = times[0] || "";
+            endTimeInput.value = times[1] || "";
+
             roomInput.value = room;
             lecturerInput.value = lecturer;
             editId = doc.id;
@@ -167,7 +181,7 @@
 
           // Delete
           row.querySelector(".btn-danger").addEventListener("click", () => {
-            if(confirm(`Delete ${data.subject} on ${data.day}?`)) {
+            if(confirm(`Delete ${subject} on ${day}?`)) {
               db.collection("schedule").doc(doc.id).delete().then(loadSchedule);
             }
           });
@@ -182,10 +196,11 @@
   // Add / Edit Schedule
   form.addEventListener("submit", e => {
     e.preventDefault();
+    const timeRange = `${startTimeInput.value} - ${endTimeInput.value}`;
     const scheduleData = {
       subject: subjectInput.value,
       day: dayInput.value,
-      time: timeInput.value,
+      time: timeRange,
       room: roomInput.value,
       lecturer: lecturerInput.value
     };
