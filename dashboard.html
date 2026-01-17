@@ -5,16 +5,18 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="p-4">
+<body class="p-4 bg-light">
 
 <div class="container">
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Student Dashboard</h2>
     <button id="logoutBtn" class="btn btn-danger">Logout</button>
   </div>
 
-  <div class="row mb-3">
+  <!-- Stats Row -->
+  <div class="row mb-4">
     <div class="col-md-4">
       <div class="card text-center shadow-sm">
         <div class="card-body">
@@ -27,7 +29,7 @@
       <div class="card text-center shadow-sm">
         <div class="card-body">
           <h5>Active Students</h5>
-          <h2 id="activeStudents">0</h2>
+          <h2 id="activeStudents" class="text-success">0</h2>
         </div>
       </div>
     </div>
@@ -35,16 +37,55 @@
       <div class="card text-center shadow-sm">
         <div class="card-body">
           <h5>Inactive Students</h5>
-          <h2 id="inactiveStudents">0</h2>
+          <h2 id="inactiveStudents" class="text-danger">0</h2>
         </div>
       </div>
     </div>
   </div>
 
-  <ul class="list-group mb-3">
-    <li class="list-group-item"><a href="students.html">Student List</a></li>
-    <li class="list-group-item"><a href="schedule.html">Class Schedule</a></li>
-  </ul>
+  <!-- Navigation Cards -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <a href="students.html" class="card shadow-sm text-decoration-none text-dark">
+        <div class="card-body">
+          <h4>📋 Student List</h4>
+          <p>View all registered students</p>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-6">
+      <a href="schedule.html" class="card shadow-sm text-decoration-none text-dark">
+        <div class="card-body">
+          <h4>📅 Class Schedule</h4>
+          <p>View weekly timetable</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Announcements -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h4>📢 Announcements</h4>
+      <ul>
+        <li>Midterm exams start next week</li>
+        <li>New students added to the system</li>
+        <li>Schedule updated for Friday</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h4>🕒 Recent Activity</h4>
+      <ul>
+        <li>Ali marked as Active</li>
+        <li>Aisyah added to Student List</li>
+        <li>Schedule updated</li>
+      </ul>
+    </div>
+  </div>
 
 </div>
 
@@ -86,13 +127,9 @@
 
   db.collection("students").get().then(snapshot => {
     const all = snapshot.docs.map(doc => doc.data());
-    const total = all.length;
-    const active = all.filter(s => s.Status === "Active").length;
-    const inactive = all.filter(s => s.Status === "Inactive").length;
-
-    totalEl.textContent = total;
-    activeEl.textContent = active;
-    inactiveEl.textContent = inactive;
+    totalEl.textContent = all.length;
+    activeEl.textContent = all.filter(s => s.Status === "Active").length;
+    inactiveEl.textContent = all.filter(s => s.Status === "Inactive").length;
   });
 </script>
 
