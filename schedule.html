@@ -12,22 +12,24 @@
   <style>
     table tbody tr:hover { background-color: #f0f8ff; cursor: pointer; }
     input, select, button { border-radius: 8px; }
-    .badge-math { background-color: #0d6efd; color: white; }
-    .badge-science { background-color: #198754; color: white; }
-    .badge-english { background-color: #ffc107; color: white; }
     .card { border-radius: 12px; }
+    .badge-subject { padding: 0.5em; color: white; border-radius: 6px; }
+    .badge-math { background-color: #0d6efd; }
+    .badge-science { background-color: #198754; }
+    .badge-english { background-color: #ffc107; color: black; }
   </style>
 </head>
 <body class="p-4 bg-light">
 
 <div class="container">
 
+  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>📅 Class Schedule</h2>
     <a href="dashboard.html" class="btn btn-secondary">Back</a>
   </div>
 
-  <!-- Add/Edit Schedule Form -->
+  <!-- Add/Edit Class Form -->
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-primary text-white">Add / Edit Class</div>
     <div class="card-body">
@@ -38,7 +40,7 @@
           <input type="text" class="form-control" id="subject" placeholder="e.g. Math" required>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-2">
           <label class="form-label">Day</label>
           <select class="form-select" id="day" required>
             <option value="">Select Day</option>
@@ -50,9 +52,19 @@
           </select>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-2">
           <label class="form-label">Time</label>
           <input type="time" class="form-control" id="time" required>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Classroom</label>
+          <input type="text" class="form-control" id="classroom" placeholder="e.g. Room 101" required>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Lecturer</label>
+          <input type="text" class="form-control" id="lecturer" placeholder="e.g. Mr. Ali" required>
         </div>
 
         <div class="col-12">
@@ -72,6 +84,8 @@
             <th>Subject</th>
             <th>Day</th>
             <th>Time</th>
+            <th>Classroom</th>
+            <th>Lecturer</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -101,12 +115,16 @@
 
   const table = document.getElementById("scheduleTable");
   const form = document.getElementById("scheduleForm");
+
   const subjectInput = document.getElementById("subject");
   const dayInput = document.getElementById("day");
   const timeInput = document.getElementById("time");
+  const classroomInput = document.getElementById("classroom");
+  const lecturerInput = document.getElementById("lecturer");
 
   let editId = null;
 
+  // Load schedule
   function loadSchedule() {
     table.innerHTML = "";
     db.collection("schedule").orderBy("day").get()
@@ -115,16 +133,21 @@
           const data = doc.data();
           const row = document.createElement("tr");
 
-          // Simple badge colors based on subject
-          let badgeClass = "badge-secondary";
-          if (data.subject.toLowerCase().includes("math")) badgeClass = "badge-math";
-          else if (data.subject.toLowerCase().includes("science")) badgeClass = "badge-science";
-          else if (data.subject.toLowerCase().includes("english")) badgeClass = "badge-english";
+          const classroom = data.classroom || "-";
+          const lecturer = data.lecturer || "-";
+
+          // Badge for subject type (optional, simple)
+          let badgeClass = "badge-subject bg-secondary";
+          if(data.subject.toLowerCase().includes("math")) badgeClass = "badge-subject badge-math";
+          else if(data.subject.toLowerCase().includes("science")) badgeClass = "badge-subject badge-science";
+          else if(data.subject.toLowerCase().includes("english")) badgeClass = "badge-subject badge-english";
 
           row.innerHTML = `
-            <td><span class="badge ${badgeClass}">${data.subject}</span></td>
+            <td><span class="${badgeClass}">${data.subject}</span></td>
             <td>${data.day}</td>
             <td>${data.time}</td>
+            <td>${classroom}</td>
+            <td>${lecturer}</td>
             <td>
               <button class="btn btn-sm btn-warning me-1">Edit</button>
               <button class="btn btn-sm btn-danger">Delete</button>
@@ -136,12 +159,14 @@
             subjectInput.value = data.subject;
             dayInput.value = data.day;
             timeInput.value = data.time;
+            classroomInput.value = classroom;
+            lecturerInput.value = lecturer;
             editId = doc.id;
           });
 
           // Delete
           row.querySelector(".btn-danger").addEventListener("click", () => {
-            if (confirm(`Delete ${data.subject} on ${data.day}?`)) {
+            if(confirm(`Delete ${data.subject} on ${data.day}?`)) {
               db.collection("schedule").doc(doc.id).delete().then(loadSchedule);
             }
           });
@@ -151,18 +176,20 @@
       });
   }
 
-  loadSchedule();
+  loadSchedule(); // initial load
 
-  // Add/Edit Schedule
+  // Add / Edit Schedule
   form.addEventListener("submit", e => {
     e.preventDefault();
     const scheduleData = {
       subject: subjectInput.value,
       day: dayInput.value,
-      time: timeInput.value
+      time: timeInput.value,
+      classroom: classroomInput.value,
+      lecturer: lecturerInput.value
     };
 
-    if (editId) {
+    if(editId) {
       db.collection("schedule").doc(editId).set(scheduleData).then(() => {
         form.reset();
         editId = null;
