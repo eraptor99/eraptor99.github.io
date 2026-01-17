@@ -2,92 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Student Tracker Login</title>
+  <title>Student Planner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
   <style>
     body {
       background: linear-gradient(135deg, #4e73df, #1cc88a);
+      min-height: 100vh;
     }
-    .login-card {
-      width: 360px;
+    .welcome-card {
+      max-width: 500px;
       border-radius: 14px;
-    }
-    .login-card h3 {
-      font-weight: 600;
-    }
-    .form-control {
-      border-radius: 8px;
     }
     .btn-rounded {
       border-radius: 8px;
     }
-    .error-text {
-      color: #dc3545;
-      font-size: 0.9rem;
-      display: none;
-    }
   </style>
 </head>
 
-<body class="d-flex justify-content-center align-items-center vh-100">
+<body class="d-flex justify-content-center align-items-center">
 
-  <div class="card login-card shadow p-4">
-    <h3 class="text-center mb-1">🎓 Student Tracker</h3>
-    <p class="text-center text-muted mb-4">Login to continue</p>
+  <div class="card welcome-card shadow text-center p-4">
+    <h1 class="mb-3">🎓 Welcome to Student Planner</h1>
+    <p class="text-muted mb-4">
+      Keep track of students, manage class schedules, and view announcements all in one place.
+    </p>
 
-    <input id="email" type="email" class="form-control mb-3" placeholder="Email" required>
-    <input id="password" type="password" class="form-control mb-2" placeholder="Password" required>
-
-    <div id="errorMsg" class="error-text mb-2 text-center"></div>
-
-    <button class="btn btn-primary btn-rounded w-100" onclick="login()">
+    <a href="login.html" class="btn btn-primary btn-rounded w-50 mb-3">
       Login
-    </button>
+    </a>
 
-    <p class="text-center text-muted mt-3 mb-0" style="font-size: 0.85rem;">
+    <p class="text-muted mt-3" style="font-size:0.85rem;">
       Student Project • 2026
     </p>
   </div>
-
-  
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
-      authDomain: "studentplanner-d0933.firebaseapp.com",
-      projectId: "studentplanner-d0933",
-      storageBucket: "studentplanner-d0933.firebasestorage.app",
-      messagingSenderId: "734911455270",
-      appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    window.login = function () {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const errorMsg = document.getElementById("errorMsg");
-
-      errorMsg.style.display = "none";
-
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          window.location.href = "dashboard.html";
-        })
-        .catch(err => {
-          errorMsg.textContent = "Invalid email or password";
-          errorMsg.style.display = "block";
-        });
-    };
-  </script>
 
 </body>
 </html>
