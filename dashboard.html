@@ -1,9 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Student Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    .card { border-radius: 12px; }
+    .btn-rounded { border-radius: 8px; }
+    #announcementList li:hover { background-color: #f0f8ff; }
+    .badge-active { background-color: #28a745; color: white; }
+    .badge-inactive { background-color: #dc3545; color: white; }
+  </style>
 </head>
 <body class="p-4 bg-light">
 
@@ -11,69 +23,41 @@
 
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Student Dashboard</h2>
-    <button id="logoutBtn" class="btn btn-danger">Logout</button>
-  </div>
-
-  <!-- Stats Row -->
-  <div class="row mb-4">
-    <div class="col-md-4">
-      <div class="card text-center shadow-sm">
-        <div class="card-body">
-          <h5>Total Students</h5>
-          <h2 id="totalStudents">0</h2>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card text-center shadow-sm">
-        <div class="card-body">
-          <h5>Active Students</h5>
-          <h2 id="activeStudents" class="text-success">0</h2>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card text-center shadow-sm">
-        <div class="card-body">
-          <h5>Inactive Students</h5>
-          <h2 id="inactiveStudents" class="text-danger">0</h2>
-        </div>
-      </div>
-    </div>
+    <h2>📊 Student Dashboard</h2>
+    <button id="logoutBtn" class="btn btn-danger btn-rounded">Logout</button>
   </div>
 
   <!-- Navigation Cards -->
   <div class="row mb-4">
     <div class="col-md-6">
-      <a href="students.html" class="card shadow-sm text-decoration-none text-dark">
-        <div class="card-body">
-          <h4>📋 Student List</h4>
-          <p>View all registered students</p>
-        </div>
-      </a>
+      <div class="card shadow-sm p-3 text-center">
+        <h4>👩‍🎓 Students</h4>
+        <p>View and manage students</p>
+        <a href="students.html" class="btn btn-primary btn-rounded">Go</a>
+      </div>
     </div>
     <div class="col-md-6">
-      <a href="schedule.html" class="card shadow-sm text-decoration-none text-dark">
-        <div class="card-body">
-          <h4>📅 Class Schedule</h4>
-          <p>View weekly timetable</p>
-        </div>
-      </a>
+      <div class="card shadow-sm p-3 text-center">
+        <h4>📅 Schedule</h4>
+        <p>View and manage class schedule</p>
+        <a href="schedule.html" class="btn btn-primary btn-rounded">Go</a>
+      </div>
     </div>
   </div>
 
   <!-- Announcements Card -->
-  <div class="card shadow-sm mb-4">
+  <div class="card shadow-sm">
     <div class="card-body">
       <h4>📢 Announcements</h4>
 
+      <!-- Announcement List -->
       <ul id="announcementList" class="list-group mb-3"></ul>
 
-      <form id="announcementForm" class="d-flex gap-2">
+      <!-- Add/Edit Announcement Form -->
+      <form id="announcementForm" class="d-flex gap-2 mb-2">
         <input type="text" id="annTitle" class="form-control" placeholder="Title" required>
         <input type="text" id="annMessage" class="form-control" placeholder="Message" required>
-        <button class="btn btn-success">Add</button>
+        <button class="btn btn-success btn-rounded">Save</button>
       </form>
     </div>
   </div>
@@ -86,6 +70,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
     authDomain: "studentplanner-d0933.firebaseapp.com",
@@ -100,26 +85,14 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // Protect page
+  // 🔹 Protect page: redirect to login if not logged in
   auth.onAuthStateChanged(user => {
     if (!user) window.location.href = "login.html";
   });
 
-  // Logout
+  // Logout button
   document.getElementById("logoutBtn").addEventListener("click", () => {
     auth.signOut().then(() => window.location.href = "login.html");
-  });
-
-  // Dashboard Stats Auto-Count
-  const totalEl = document.getElementById("totalStudents");
-  const activeEl = document.getElementById("activeStudents");
-  const inactiveEl = document.getElementById("inactiveStudents");
-
-  db.collection("students").get().then(snapshot => {
-    const all = snapshot.docs.map(doc => doc.data());
-    totalEl.textContent = all.length;
-    activeEl.textContent = all.filter(s => s.Status === "Active").length;
-    inactiveEl.textContent = all.filter(s => s.Status === "Inactive").length;
   });
 
   // Announcements
@@ -128,6 +101,9 @@
   const annTitle = document.getElementById("annTitle");
   const annMessage = document.getElementById("annMessage");
 
+  let editAnnId = null; // Track currently editing announcement
+
+  // Load announcements
   function loadAnnouncements() {
     annList.innerHTML = "";
     db.collection("announcements").orderBy("timestamp", "desc").get()
@@ -135,26 +111,58 @@
         snapshot.forEach(doc => {
           const a = doc.data();
           const li = document.createElement("li");
-          li.className = "list-group-item";
-          li.textContent = `${a.title}: ${a.message}`;
+          li.className = "list-group-item d-flex justify-content-between align-items-center";
+          li.innerHTML = `
+            <div><strong>${a.title}</strong>: ${a.message}</div>
+            <div>
+              <button class="btn btn-sm btn-warning me-1">Edit</button>
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </div>
+          `;
+
+          // Edit announcement
+          li.querySelector(".btn-warning").addEventListener("click", () => {
+            annTitle.value = a.title;
+            annMessage.value = a.message;
+            editAnnId = doc.id;
+          });
+
+          // Delete announcement
+          li.querySelector(".btn-danger").addEventListener("click", () => {
+            if(confirm(`Delete announcement "${a.title}"?`)) {
+              db.collection("announcements").doc(doc.id).delete().then(loadAnnouncements);
+            }
+          });
+
           annList.appendChild(li);
         });
       });
   }
 
+  loadAnnouncements(); // initial load
+
+  // Add / Edit announcement
   annForm.addEventListener("submit", e => {
     e.preventDefault();
-    db.collection("announcements").add({
+    const data = {
       title: annTitle.value,
       message: annMessage.value,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      annForm.reset();
-      loadAnnouncements();
-    });
-  });
+    };
 
-  loadAnnouncements(); // initial load
+    if(editAnnId) {
+      db.collection("announcements").doc(editAnnId).set(data).then(() => {
+        annForm.reset();
+        editAnnId = null;
+        loadAnnouncements();
+      });
+    } else {
+      db.collection("announcements").add(data).then(() => {
+        annForm.reset();
+        loadAnnouncements();
+      });
+    }
+  });
 </script>
 
 </body>
