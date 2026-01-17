@@ -63,27 +63,18 @@
     </div>
   </div>
 
-  <!-- Announcements -->
+  <!-- Announcements Card -->
   <div class="card shadow-sm mb-4">
     <div class="card-body">
       <h4>📢 Announcements</h4>
-      <ul>
-        <li>Midterm exams start next week</li>
-        <li>New students added to the system</li>
-        <li>Schedule updated for Friday</li>
-      </ul>
-    </div>
-  </div>
 
-  <!-- Recent Activity -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <h4>🕒 Recent Activity</h4>
-      <ul>
-        <li>Ali marked as Active</li>
-        <li>Aisyah added to Student List</li>
-        <li>Schedule updated</li>
-      </ul>
+      <ul id="announcementList" class="list-group mb-3"></ul>
+
+      <form id="announcementForm" class="d-flex gap-2">
+        <input type="text" id="annTitle" class="form-control" placeholder="Title" required>
+        <input type="text" id="annMessage" class="form-control" placeholder="Message" required>
+        <button class="btn btn-success">Add</button>
+      </form>
     </div>
   </div>
 
@@ -115,12 +106,11 @@
   });
 
   // Logout
-  const logoutBtn = document.getElementById("logoutBtn");
-  logoutBtn.addEventListener("click", () => {
+  document.getElementById("logoutBtn").addEventListener("click", () => {
     auth.signOut().then(() => window.location.href = "login.html");
   });
 
-  // Dashboard stats auto-count
+  // Dashboard Stats Auto-Count
   const totalEl = document.getElementById("totalStudents");
   const activeEl = document.getElementById("activeStudents");
   const inactiveEl = document.getElementById("inactiveStudents");
@@ -131,6 +121,40 @@
     activeEl.textContent = all.filter(s => s.Status === "Active").length;
     inactiveEl.textContent = all.filter(s => s.Status === "Inactive").length;
   });
+
+  // Announcements
+  const annList = document.getElementById("announcementList");
+  const annForm = document.getElementById("announcementForm");
+  const annTitle = document.getElementById("annTitle");
+  const annMessage = document.getElementById("annMessage");
+
+  function loadAnnouncements() {
+    annList.innerHTML = "";
+    db.collection("announcements").orderBy("timestamp", "desc").get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          const a = doc.data();
+          const li = document.createElement("li");
+          li.className = "list-group-item";
+          li.textContent = `${a.title}: ${a.message}`;
+          annList.appendChild(li);
+        });
+      });
+  }
+
+  annForm.addEventListener("submit", e => {
+    e.preventDefault();
+    db.collection("announcements").add({
+      title: annTitle.value,
+      message: annMessage.value,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      annForm.reset();
+      loadAnnouncements();
+    });
+  });
+
+  loadAnnouncements(); // initial load
 </script>
 
 </body>
