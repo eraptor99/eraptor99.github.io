@@ -5,7 +5,6 @@
   <title>Student Planner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
@@ -15,31 +14,135 @@
       min-height: 100vh;
     }
     .welcome-card {
-      max-width: 500px;
       border-radius: 14px;
     }
     .btn-rounded {
       border-radius: 8px;
     }
+    .stat-card {
+      border-radius: 12px;
+      color: white;
+    }
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    .announcement-card {
+      border-radius: 12px;
+    }
   </style>
 </head>
 
-<body class="d-flex justify-content-center align-items-center">
+<body class="d-flex justify-content-center align-items-start py-5">
 
-  <div class="card welcome-card shadow text-center p-4">
-    <h1 class="mb-3">🎓 Welcome to Student Planner</h1>
+<div class="container">
+
+  <div class="card welcome-card shadow text-center p-4 mb-4">
+    <h1 class="mb-3">🎓 Student Planner</h1>
     <p class="text-muted mb-4">
-      Keep track of students, manage class schedules, and view announcements all in one place.
+      Manage students, schedules, and announcements all in one place.
     </p>
-
-    <a href="login.html" class="btn btn-primary btn-rounded w-50 mb-3">
-      Login
-    </a>
-
-    <p class="text-muted mt-3" style="font-size:0.85rem;">
-      Student Project • 2026
-    </p>
+    <a href="login.html" class="btn btn-primary btn-rounded w-50 mb-3">Login</a>
   </div>
+
+  <div class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="stat-card bg-primary p-3 text-center shadow">
+        <div>👩‍🎓 Students</div>
+        <div class="stat-number" id="studentCount">0</div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="stat-card bg-success p-3 text-center shadow">
+        <div>📅 Classes</div>
+        <div class="stat-number" id="classCount">0</div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="stat-card bg-warning p-3 text-center shadow">
+        <div>📢 Announcements</div>
+        <div class="stat-number" id="annCount">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="card shadow p-3 text-center">
+        <h5>Students</h5>
+        <p>View and manage student list</p>
+        <a href="students.html" class="btn btn-primary btn-rounded">Go</a>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow p-3 text-center">
+        <h5>Schedule</h5>
+        <p>View and manage class schedules</p>
+        <a href="schedule.html" class="btn btn-primary btn-rounded">Go</a>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card shadow p-3 text-center">
+        <h5>Announcements</h5>
+        <p>Latest updates and news</p>
+        <a href="dashboard.html" class="btn btn-primary btn-rounded">Go</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow announcement-card p-3 mb-4">
+    <h5>📢 Latest Announcements</h5>
+    <ul class="list-group" id="latestAnnouncements">
+      <li class="list-group-item">Loading...</li>
+    </ul>
+  </div>
+
+  <footer class="text-center text-muted mt-4">
+    <a href="about.html" class="me-3">About</a>
+    <a href="contact.html">Contact</a>
+    <p class="mt-2" style="font-size:0.85rem;">Student Project • 2026</p>
+  </footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
+    authDomain: "studentplanner-d0933.firebaseapp.com",
+    projectId: "studentplanner-d0933",
+    storageBucket: "studentplanner-d0933.firebasestorage.app",
+    messagingSenderId: "734911455270",
+    appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const studentCount = document.getElementById("studentCount");
+  const classCount = document.getElementById("classCount");
+  const annCount = document.getElementById("annCount");
+  const latestAnnouncements = document.getElementById("latestAnnouncements");
+
+  db.collection("students").get().then(snap => studentCount.textContent = snap.size);
+  db.collection("schedule").get().then(snap => classCount.textContent = snap.size);
+  db.collection("announcements").get().then(snap => annCount.textContent = snap.size);
+
+  db.collection("announcements").orderBy("timestamp", "desc").limit(3)
+    .get()
+    .then(snap => {
+      latestAnnouncements.innerHTML = "";
+      snap.forEach(doc => {
+        const data = doc.data();
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.textContent = `${data.title}: ${data.message}`;
+        latestAnnouncements.appendChild(li);
+      });
+      if (snap.size === 0) latestAnnouncements.innerHTML = "<li class='list-group-item'>No announcements</li>";
+    });
+</script>
 
 </body>
 </html>
