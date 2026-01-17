@@ -10,16 +10,40 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    table tbody tr:hover { background-color: #f0f8ff; cursor: pointer; }
-    input, select, button { border-radius: 8px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #e0f7fa, #ffffff);
+    }
+
     .card { border-radius: 12px; }
-    .badge-subject { padding: 0.5em; color: white; border-radius: 6px; }
+    input, select, button { border-radius: 8px; }
+
+    /* Table hover & shadow effect */
+    .table-hover tbody tr:hover {
+      background-color: #f0f8ff;
+      transform: scale(1.01);
+      transition: transform 0.15s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Subject badges */
+    .badge-subject { padding: 0.4em 0.6em; color: white; border-radius: 6px; font-weight: 500; }
     .badge-math { background-color: #0d6efd; }
     .badge-science { background-color: #198754; }
     .badge-english { background-color: #ffc107; color: black; }
+    .badge-history { background-color: #fd7e14; }
+
+    /* Buttons hover */
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.15s;
+    }
+
+    .form-label { font-weight: 500; }
   </style>
 </head>
-<body class="p-4 bg-light">
+<body class="p-4">
 
 <div class="container">
 
@@ -132,12 +156,11 @@
 
   function loadSchedule() {
     table.innerHTML = "";
-    db.collection("schedule").orderBy("day").get()
+    db.collection("schedule").get()
       .then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data();
 
-          // Fallback for old entries
           const subject = data.subject || data.Subject || "-";
           const day = data.day || data.Day || "-";
           const time = data.time || data.Time || "-";
@@ -146,14 +169,16 @@
 
           const row = document.createElement("tr");
 
-          // Badge for subject
+          // Subject badge with icon
           let badgeClass = "badge-subject bg-secondary";
-          if(subject.toLowerCase().includes("math")) badgeClass = "badge-subject badge-math";
-          else if(subject.toLowerCase().includes("science")) badgeClass = "badge-subject badge-science";
-          else if(subject.toLowerCase().includes("english")) badgeClass = "badge-subject badge-english";
+          let icon = "";
+          if(subject.toLowerCase().includes("math")) { badgeClass = "badge-subject badge-math"; icon="🧮"; }
+          else if(subject.toLowerCase().includes("science")) { badgeClass = "badge-subject badge-science"; icon="🔬"; }
+          else if(subject.toLowerCase().includes("english")) { badgeClass = "badge-subject badge-english"; icon="📖"; }
+          else if(subject.toLowerCase().includes("history")) { badgeClass = "badge-subject badge-history"; icon="🏺"; }
 
           row.innerHTML = `
-            <td><span class="${badgeClass}">${subject}</span></td>
+            <td><span class="${badgeClass}">${icon} ${subject}</span></td>
             <td>${day}</td>
             <td>${time}</td>
             <td>${room}</td>
@@ -164,12 +189,10 @@
             </td>
           `;
 
-          // Edit
           row.querySelector(".btn-warning").addEventListener("click", () => {
             subjectInput.value = subject;
             dayInput.value = day;
 
-            // Split time for start/end inputs
             const times = time.split(" - ");
             startTimeInput.value = times[0] || "";
             endTimeInput.value = times[1] || "";
@@ -179,7 +202,6 @@
             editId = doc.id;
           });
 
-          // Delete
           row.querySelector(".btn-danger").addEventListener("click", () => {
             if(confirm(`Delete ${subject} on ${day}?`)) {
               db.collection("schedule").doc(doc.id).delete().then(loadSchedule);
@@ -191,9 +213,8 @@
       });
   }
 
-  loadSchedule(); // initial load
+  loadSchedule();
 
-  // Add / Edit Schedule
   form.addEventListener("submit", e => {
     e.preventDefault();
     const timeRange = `${startTimeInput.value} - ${endTimeInput.value}`;
