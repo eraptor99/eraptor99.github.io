@@ -130,10 +130,7 @@
       const isToday = s.Day === today;
       table.innerHTML += `
         <tr class="${isToday ? 'table-success' : ''}">
-          <td>
-            ${s.Day}
-            ${isToday ? '<span class="badge bg-success ms-2">Today</span>' : ''}
-          </td>
+          <td>${s.Day} ${isToday ? '<span class="badge bg-success ms-2">Today</span>' : ''}</td>
           <td>${s.Time}</td>
           <td>${s.Subject}</td>
           <td>${s.Lecturer}</td>
@@ -151,16 +148,12 @@
   }
 
   filter.addEventListener("change", () => {
-    if (filter.value === "All") {
-      renderTable(schedules);
-    } else {
-      renderTable(schedules.filter(s => s.Day === filter.value));
-    }
+    if (filter.value === "All") renderTable(schedules);
+    else renderTable(schedules.filter(s => s.Day === filter.value));
   });
 
   form.addEventListener("submit", e => {
     e.preventDefault();
-
     db.collection("schedule").add({
       Day: day.value,
       Time: time.value,
