@@ -2,98 +2,113 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Weekly Timetable</title>
+  <title>Class Schedule</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="style.css">
 </head>
-<body class="p-4">
 
-<h2>Weekly Class Timetable</h2>
+<body class="p-4 bg-light">
 
-<table class="table table-bordered">
-  <thead>
-    <tr>
-      <th>Time</th>
-      <th>Monday</th>
-      <th>Tuesday</th>
-      <th>Wednesday</th>
-      <th>Thursday</th>
-      <th>Friday</th>
-    </tr>
-  </thead>
-  <tbody id="timetableBody">
-    <!-- Time slots will load dynamically -->
-  </tbody>
-</table>
+<div class="container">
 
-<a href="dashboard.html" class="btn btn-secondary mt-3">Back</a>
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>📅 Class Schedule</h2>
+    <a href="dashboard.html" class="btn btn-secondary">Back</a>
+  </div>
+
+  <!-- Filter -->
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <select id="dayFilter" class="form-select">
+        <option value="All">All Days</option>
+        <option>Monday</option>
+        <option>Tuesday</option>
+        <option>Wednesday</option>
+        <option>Thursday</option>
+        <option>Friday</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Schedule Table -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <table class="table table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Subject</th>
+            <th>Lecturer</th>
+            <th>Room</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleTable">
+          <!-- Firebase data -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+  // Firebase config
   const firebaseConfig = {
-  apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
-  authDomain: "studentplanner-d0933.firebaseapp.com",
-  projectId: "studentplanner-d0933",
-  storageBucket: "studentplanner-d0933.firebasestorage.app",
-  messagingSenderId: "734911455270",
-  appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7",
-  measurementId: "G-F8B40LEWVP"
-};
+    apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
+    authDomain: "studentplanner-d0933.firebaseapp.com",
+    projectId: "studentplanner-d0933",
+    storageBucket: "studentplanner-d0933.firebasestorage.app",
+    messagingSenderId: "734911455270",
+    appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7"
+  };
 
-  const app = firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-  const timeSlots = ["09:00 - 10:30", "10:30 - 12:00", "13:00 - 14:30", "14:30 - 16:00"];
+  const table = document.getElementById("scheduleTable");
+  const filter = document.getElementById("dayFilter");
 
-  const tbody = document.getElementById("timetableBody");
+  let schedules = [];
 
-  // Initialize empty timetable
-  const timetable = {};
-  timeSlots.forEach(time => {
-    timetable[time] = {};
-    days.forEach(day => {
-      timetable[time][day] = ""; // empty cell
-    });
+  // Load schedule
+  db.collection("schedule").get().then(snapshot => {
+    schedules = snapshot.docs.map(doc => doc.data());
+    renderTable(schedules);
   });
 
-  // Load schedule from Firestore
-  db.collection("schedule").get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const day = data.Day;
-        const time = data.Time;
-        if (timetable[time] && timetable[time][day] !== undefined) {
-          timetable[time][day] = `${data.Subject} (${data.Room})\n${data.Teacher}`;
-        }
-      });
-
-      // Render timetable
-      timeSlots.forEach(time => {
-        const row = document.createElement("tr");
-        const timeCell = document.createElement("td");
-        timeCell.textContent = time;
-        row.appendChild(timeCell);
-
-        days.forEach(day => {
-          const cell = document.createElement("td");
-          cell.innerHTML = timetable[time][day].replace(/\n/g, "<br>");
-          row.appendChild(cell);
-        });
-
-        tbody.appendChild(row);
-      });
-    })
-    .catch(error => {
-      console.error("Error loading timetable:", error);
-      alert("Failed to load timetable");
+  // Render function
+  function renderTable(data) {
+    table.innerHTML = "";
+    data.forEach(s => {
+      table.innerHTML += `
+        <tr>
+          <td><span class="badge bg-info">${s.Day}</span></td>
+          <td>${s.Time}</td>
+          <td>${s.Subject}</td>
+          <td>${s.Lecturer}</td>
+          <td>${s.Room}</td>
+        </tr>
+      `;
     });
+  }
+
+  // Filter by day
+  filter.addEventListener("change", () => {
+    if (filter.value === "All") {
+      renderTable(schedules);
+    } else {
+      renderTable(schedules.filter(s => s.Day === filter.value));
+    }
+  });
 </script>
 
 </body>
