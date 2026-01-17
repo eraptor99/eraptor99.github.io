@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Class Schedule</title>
+  <title>Student List</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -10,13 +10,16 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    table tbody tr:hover { background-color: #f0f8ff; cursor: pointer; }
-    input, select, button { border-radius: 8px; }
+    table tbody tr:hover {
+      background-color: #f0f8ff;
+      cursor: pointer;
+    }
+    input, select, button {
+      border-radius: 8px;
+    }
+    .badge-active { background-color: #28a745; color: white; }
+    .badge-inactive { background-color: #dc3545; color: white; }
     .card { border-radius: 12px; }
-    .badge-subject { padding: 0.5em; color: white; border-radius: 6px; }
-    .badge-math { background-color: #0d6efd; }
-    .badge-science { background-color: #198754; }
-    .badge-english { background-color: #ffc107; color: black; }
   </style>
 </head>
 <body class="p-4 bg-light">
@@ -25,76 +28,56 @@
 
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>📅 Class Schedule</h2>
+    <h2>👩‍🎓 Student List</h2>
     <a href="dashboard.html" class="btn btn-secondary">Back</a>
   </div>
 
-  <!-- Add/Edit Class Form -->
+  <!-- Add Student Form -->
   <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-primary text-white">Add / Edit Class</div>
+    <div class="card-header bg-primary text-white">Add / Edit Student</div>
     <div class="card-body">
-      <form id="scheduleForm" class="row g-3">
+      <form id="studentForm" class="row g-3">
 
-        <div class="col-md-3">
-          <label class="form-label">Subject</label>
-          <input type="text" class="form-control" id="subject" placeholder="e.g. Math" required>
+        <div class="col-md-4">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" id="name" placeholder="e.g. Ali" required>
         </div>
 
-        <div class="col-md-2">
-          <label class="form-label">Day</label>
-          <select class="form-select" id="day" required>
-            <option value="">Select Day</option>
-            <option>Monday</option>
-            <option>Tuesday</option>
-            <option>Wednesday</option>
-            <option>Thursday</option>
-            <option>Friday</option>
+        <div class="col-md-4">
+          <label class="form-label">Student ID</label>
+          <input type="text" class="form-control" id="studentId" placeholder="e.g. S001" required>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="status" required>
+            <option value="">Choose...</option>
+            <option>Active</option>
+            <option>Inactive</option>
           </select>
         </div>
 
-        <div class="col-md-2">
-          <label class="form-label">Start Time</label>
-          <input type="time" class="form-control" id="startTime" required>
-        </div>
-
-        <div class="col-md-2">
-          <label class="form-label">End Time</label>
-          <input type="time" class="form-control" id="endTime" required>
-        </div>
-
-        <div class="col-md-2">
-          <label class="form-label">Room</label>
-          <input type="text" class="form-control" id="room" placeholder="e.g. Room 101" required>
-        </div>
-
-        <div class="col-md-1">
-          <label class="form-label">Lecturer</label>
-          <input type="text" class="form-control" id="lecturer" placeholder="Mr. Ali" required>
-        </div>
-
         <div class="col-12">
-          <button class="btn btn-success w-100">Save Class</button>
+          <button class="btn btn-success w-100">Save Student</button>
         </div>
 
       </form>
     </div>
   </div>
 
-  <!-- Schedule Table -->
+  <!-- Student Table -->
   <div class="card shadow-sm">
     <div class="card-body">
       <table class="table table-hover">
         <thead class="table-dark">
           <tr>
-            <th>Subject</th>
-            <th>Day</th>
-            <th>Time</th>
-            <th>Room</th>
-            <th>Lecturer</th>
+            <th>Name</th>
+            <th>Student ID</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="scheduleTable"></tbody>
+        <tbody id="studentTable"></tbody>
       </table>
     </div>
   </div>
@@ -118,103 +101,80 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  const table = document.getElementById("scheduleTable");
-  const form = document.getElementById("scheduleForm");
+  const table = document.getElementById("studentTable");
+  const form = document.getElementById("studentForm");
+  const nameInput = document.getElementById("name");
+  const idInput = document.getElementById("studentId");
+  const statusInput = document.getElementById("status");
 
-  const subjectInput = document.getElementById("subject");
-  const dayInput = document.getElementById("day");
-  const startTimeInput = document.getElementById("startTime");
-  const endTimeInput = document.getElementById("endTime");
-  const roomInput = document.getElementById("room");
-  const lecturerInput = document.getElementById("lecturer");
+  let editId = null; // Track student being edited
 
-  let editId = null;
-
-  function loadSchedule() {
+  // Load students
+  function loadStudents() {
     table.innerHTML = "";
-    db.collection("schedule").get() // removed orderBy to show old entries
+    db.collection("students").orderBy("Name").get()
       .then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data();
-
-          // Fallback for old entries
-          const subject = data.subject || data.Subject || "-";
-          const day = data.day || data.Day || "-";
-          const time = data.time || data.Time || "-";
-          const room = data.room || data.Room || data.Classroom || "-";
-          const lecturer = data.lecturer || data.Lecturer || "-";
-
           const row = document.createElement("tr");
 
-          // Badge for subject
-          let badgeClass = "badge-subject bg-secondary";
-          if(subject.toLowerCase().includes("math")) badgeClass = "badge-subject badge-math";
-          else if(subject.toLowerCase().includes("science")) badgeClass = "badge-subject badge-science";
-          else if(subject.toLowerCase().includes("english")) badgeClass = "badge-subject badge-english";
+          const statusClass = data.Status === "Active" ? "badge-active" : "badge-inactive";
 
           row.innerHTML = `
-            <td><span class="${badgeClass}">${subject}</span></td>
-            <td>${day}</td>
-            <td>${time}</td>
-            <td>${room}</td>
-            <td>${lecturer}</td>
+            <td>${data.Name}</td>
+            <td>${data.StudentId}</td>
+            <td><span class="badge ${statusClass}">${data.Status}</span></td>
             <td>
               <button class="btn btn-sm btn-warning me-1">Edit</button>
               <button class="btn btn-sm btn-danger">Delete</button>
             </td>
           `;
 
-          // Edit
+          // Edit button
           row.querySelector(".btn-warning").addEventListener("click", () => {
-            subjectInput.value = subject;
-            dayInput.value = day;
-
-            // Split time for start/end inputs
-            const times = time.split(" - ");
-            startTimeInput.value = times[0] || "";
-            endTimeInput.value = times[1] || "";
-
-            roomInput.value = room;
-            lecturerInput.value = lecturer;
+            nameInput.value = data.Name;
+            idInput.value = data.StudentId;
+            statusInput.value = data.Status;
             editId = doc.id;
           });
 
-          // Delete
+          // Delete button
           row.querySelector(".btn-danger").addEventListener("click", () => {
-            if(confirm(`Delete ${subject} on ${day}?`)) {
-              db.collection("schedule").doc(doc.id).delete().then(loadSchedule);
+            if (confirm(`Delete ${data.Name}?`)) {
+              db.collection("students").doc(doc.id).delete().then(loadStudents);
             }
           });
 
           table.appendChild(row);
         });
-      });
+      })
+      .catch(err => console.error("Firestore error:", err));
   }
 
-  loadSchedule(); // initial load
+  loadStudents();
 
-  // Add / Edit Schedule
+  // Add or update student
   form.addEventListener("submit", e => {
     e.preventDefault();
-    const timeRange = `${startTimeInput.value} - ${endTimeInput.value}`;
-    const scheduleData = {
-      subject: subjectInput.value,
-      day: dayInput.value,
-      time: timeRange,
-      room: roomInput.value,
-      lecturer: lecturerInput.value
+
+    const studentData = {
+      Name: nameInput.value,
+      StudentId: idInput.value,
+      Status: statusInput.value
     };
 
-    if(editId) {
-      db.collection("schedule").doc(editId).set(scheduleData).then(() => {
+    if (editId) {
+      // Update existing
+      db.collection("students").doc(editId).set(studentData).then(() => {
         form.reset();
         editId = null;
-        loadSchedule();
+        loadStudents();
       });
     } else {
-      db.collection("schedule").add(scheduleData).then(() => {
+      // Add new
+      db.collection("students").add(studentData).then(() => {
         form.reset();
-        loadSchedule();
+        loadStudents();
       });
     }
   });
