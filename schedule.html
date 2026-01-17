@@ -26,13 +26,6 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
-    /* Subject badges */
-    .badge-subject { padding: 0.4em 0.6em; color: white; border-radius: 6px; font-weight: 500; }
-    .badge-math { background-color: #0d6efd; }
-    .badge-science { background-color: #198754; }
-    .badge-english { background-color: #ffc107; color: black; }
-    .badge-history { background-color: #fd7e14; }
-
     /* Buttons hover */
     .btn:hover {
       transform: translateY(-2px);
@@ -43,7 +36,7 @@
     .form-label { font-weight: 500; }
   </style>
 </head>
-<body class="p-4">
+<body class="p-4 bg-light">
 
 <div class="container">
 
@@ -169,16 +162,8 @@
 
           const row = document.createElement("tr");
 
-          // Subject badge with icon
-          let badgeClass = "badge-subject bg-secondary";
-          let icon = "";
-          if(subject.toLowerCase().includes("math")) { badgeClass = "badge-subject badge-math"; icon="🧮"; }
-          else if(subject.toLowerCase().includes("science")) { badgeClass = "badge-subject badge-science"; icon="🔬"; }
-          else if(subject.toLowerCase().includes("english")) { badgeClass = "badge-subject badge-english"; icon="📖"; }
-          else if(subject.toLowerCase().includes("history")) { badgeClass = "badge-subject badge-history"; icon="🏺"; }
-
           row.innerHTML = `
-            <td><span class="${badgeClass}">${icon} ${subject}</span></td>
+            <td>${subject}</td>
             <td>${day}</td>
             <td>${time}</td>
             <td>${room}</td>
