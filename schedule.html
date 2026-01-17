@@ -16,22 +16,68 @@
 
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Class Schedule</h2>
+    <h2>📅 Class Schedule</h2>
     <a href="dashboard.html" class="btn btn-secondary">Back</a>
   </div>
 
-  <!-- Filter -->
-  <div class="row mb-3">
-    <div class="col-md-4">
-      <select id="dayFilter" class="form-select">
-        <option value="All">All Days</option>
-        <option>Monday</option>
-        <option>Tuesday</option>
-        <option>Wednesday</option>
-        <option>Thursday</option>
-        <option>Friday</option>
-      </select>
+  <!-- Add Schedule Form -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white">
+      Add New Class
     </div>
+    <div class="card-body">
+      <form id="scheduleForm" class="row g-3">
+
+        <div class="col-md-4">
+          <label class="form-label">Day</label>
+          <select class="form-select" id="day" required>
+            <option value="">Choose...</option>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Time</label>
+          <input type="text" class="form-control" id="time" placeholder="9:00 - 11:00" required>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Room</label>
+          <input type="text" class="form-control" id="room" required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Subject</label>
+          <input type="text" class="form-control" id="subject" required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Lecturer</label>
+          <input type="text" class="form-control" id="lecturer" required>
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn-success">Add Schedule</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="mb-3">
+    <select id="dayFilter" class="form-select w-25">
+      <option value="All">All Days</option>
+      <option>Monday</option>
+      <option>Tuesday</option>
+      <option>Wednesday</option>
+      <option>Thursday</option>
+      <option>Friday</option>
+    </select>
   </div>
 
   <!-- Schedule Table -->
@@ -47,9 +93,7 @@
             <th>Room</th>
           </tr>
         </thead>
-        <tbody id="scheduleTable">
-          <!-- Firebase data -->
-        </tbody>
+        <tbody id="scheduleTable"></tbody>
       </table>
     </div>
   </div>
@@ -61,7 +105,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
     authDomain: "studentplanner-d0933.firebaseapp.com",
@@ -76,22 +119,21 @@
 
   const table = document.getElementById("scheduleTable");
   const filter = document.getElementById("dayFilter");
+  const form = document.getElementById("scheduleForm");
 
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
   let schedules = [];
 
-  // Load schedule
-  db.collection("schedule").get().then(snapshot => {
-    schedules = snapshot.docs.map(doc => doc.data());
-    renderTable(schedules);
-  });
-
-  // Render function
   function renderTable(data) {
     table.innerHTML = "";
     data.forEach(s => {
+      const isToday = s.Day === today;
       table.innerHTML += `
-        <tr>
-          <td><span class="badge bg-info">${s.Day}</span></td>
+        <tr class="${isToday ? 'table-success' : ''}">
+          <td>
+            ${s.Day}
+            ${isToday ? '<span class="badge bg-success ms-2">Today</span>' : ''}
+          </td>
           <td>${s.Time}</td>
           <td>${s.Subject}</td>
           <td>${s.Lecturer}</td>
@@ -101,7 +143,13 @@
     });
   }
 
-  // Filter by day
+  function loadSchedule() {
+    db.collection("schedule").get().then(snapshot => {
+      schedules = snapshot.docs.map(doc => doc.data());
+      renderTable(schedules);
+    });
+  }
+
   filter.addEventListener("change", () => {
     if (filter.value === "All") {
       renderTable(schedules);
@@ -109,6 +157,23 @@
       renderTable(schedules.filter(s => s.Day === filter.value));
     }
   });
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+
+    db.collection("schedule").add({
+      Day: day.value,
+      Time: time.value,
+      Subject: subject.value,
+      Lecturer: lecturer.value,
+      Room: room.value
+    }).then(() => {
+      form.reset();
+      loadSchedule();
+    });
+  });
+
+  loadSchedule();
 </script>
 
 </body>
