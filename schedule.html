@@ -54,12 +54,13 @@
 
         <div class="col-md-2">
           <label class="form-label">Time</label>
-          <input type="time" class="form-control" id="time" required>
+          <!-- Plain text so we can enter ranges like "09:00 - 10:30" -->
+          <input type="text" class="form-control" id="time" placeholder="09:00 - 10:30" required>
         </div>
 
         <div class="col-md-2">
-          <label class="form-label">Classroom</label>
-          <input type="text" class="form-control" id="classroom" placeholder="e.g. Room 101" required>
+          <label class="form-label">Room</label>
+          <input type="text" class="form-control" id="room" placeholder="e.g. Room 101" required>
         </div>
 
         <div class="col-md-2">
@@ -84,7 +85,7 @@
             <th>Subject</th>
             <th>Day</th>
             <th>Time</th>
-            <th>Classroom</th>
+            <th>Room</th>
             <th>Lecturer</th>
             <th>Actions</th>
           </tr>
@@ -119,7 +120,7 @@
   const subjectInput = document.getElementById("subject");
   const dayInput = document.getElementById("day");
   const timeInput = document.getElementById("time");
-  const classroomInput = document.getElementById("classroom");
+  const roomInput = document.getElementById("room");
   const lecturerInput = document.getElementById("lecturer");
 
   let editId = null;
@@ -133,10 +134,10 @@
           const data = doc.data();
           const row = document.createElement("tr");
 
-          const classroom = data.classroom || "-";
+          const room = data.room || "-";
           const lecturer = data.lecturer || "-";
 
-          // Badge for subject type (optional, simple)
+          // Badge for subject type
           let badgeClass = "badge-subject bg-secondary";
           if(data.subject.toLowerCase().includes("math")) badgeClass = "badge-subject badge-math";
           else if(data.subject.toLowerCase().includes("science")) badgeClass = "badge-subject badge-science";
@@ -146,7 +147,7 @@
             <td><span class="${badgeClass}">${data.subject}</span></td>
             <td>${data.day}</td>
             <td>${data.time}</td>
-            <td>${classroom}</td>
+            <td>${room}</td>
             <td>${lecturer}</td>
             <td>
               <button class="btn btn-sm btn-warning me-1">Edit</button>
@@ -159,7 +160,7 @@
             subjectInput.value = data.subject;
             dayInput.value = data.day;
             timeInput.value = data.time;
-            classroomInput.value = classroom;
+            roomInput.value = room;
             lecturerInput.value = lecturer;
             editId = doc.id;
           });
@@ -185,7 +186,7 @@
       subject: subjectInput.value,
       day: dayInput.value,
       time: timeInput.value,
-      classroom: classroomInput.value,
+      room: roomInput.value,
       lecturer: lecturerInput.value
     };
 
