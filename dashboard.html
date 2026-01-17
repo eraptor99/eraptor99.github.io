@@ -5,7 +5,6 @@
   <title>Student Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
@@ -21,13 +20,11 @@
 
 <div class="container">
 
-  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>📊 Student Dashboard</h2>
     <button id="logoutBtn" class="btn btn-danger btn-rounded">Logout</button>
   </div>
 
-  <!-- Navigation Cards -->
   <div class="row mb-4">
     <div class="col-md-6">
       <div class="card shadow-sm p-3 text-center">
@@ -45,15 +42,12 @@
     </div>
   </div>
 
-  <!-- Announcements Card -->
   <div class="card shadow-sm">
     <div class="card-body">
       <h4>📢 Announcements</h4>
 
-      <!-- Announcement List -->
       <ul id="announcementList" class="list-group mb-3"></ul>
 
-      <!-- Add/Edit Announcement Form -->
       <form id="announcementForm" class="d-flex gap-2 mb-2">
         <input type="text" id="annTitle" class="form-control" placeholder="Title" required>
         <input type="text" id="annMessage" class="form-control" placeholder="Message" required>
@@ -64,13 +58,12 @@
 
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // Firebase config
+ 
   const firebaseConfig = {
     apiKey: "AIzaSyDpzuExZHIX9VR9ykKQB-6tpxnzRU3WxTQ",
     authDomain: "studentplanner-d0933.firebaseapp.com",
@@ -80,30 +73,30 @@
     appId: "1:734911455270:web:a5f0381a14c6d3fb31c6e7"
   };
 
-  // Initialize Firebase
+  
   const app = firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // 🔹 Protect page: redirect to login if not logged in
+  
   auth.onAuthStateChanged(user => {
     if (!user) window.location.href = "login.html";
   });
 
-  // Logout button
+  
   document.getElementById("logoutBtn").addEventListener("click", () => {
     auth.signOut().then(() => window.location.href = "login.html");
   });
 
-  // Announcements
+  
   const annList = document.getElementById("announcementList");
   const annForm = document.getElementById("announcementForm");
   const annTitle = document.getElementById("annTitle");
   const annMessage = document.getElementById("annMessage");
 
-  let editAnnId = null; // Track currently editing announcement
+  let editAnnId = null; // 
 
-  // Load announcements
+  
   function loadAnnouncements() {
     annList.innerHTML = "";
     db.collection("announcements").orderBy("timestamp", "desc").get()
@@ -112,6 +105,8 @@
           const a = doc.data();
           const li = document.createElement("li");
           li.className = "list-group-item d-flex justify-content-between align-items-center";
+          <li class="list-group-item"><a href="about.html">About</a></li>
+          <li class="list-group-item"><a href="contact.html">Contact</a></li>
           li.innerHTML = `
             <div><strong>${a.title}</strong>: ${a.message}</div>
             <div>
@@ -120,14 +115,14 @@
             </div>
           `;
 
-          // Edit announcement
+          
           li.querySelector(".btn-warning").addEventListener("click", () => {
             annTitle.value = a.title;
             annMessage.value = a.message;
             editAnnId = doc.id;
           });
 
-          // Delete announcement
+          
           li.querySelector(".btn-danger").addEventListener("click", () => {
             if(confirm(`Delete announcement "${a.title}"?`)) {
               db.collection("announcements").doc(doc.id).delete().then(loadAnnouncements);
@@ -139,9 +134,9 @@
       });
   }
 
-  loadAnnouncements(); // initial load
+  loadAnnouncements(); 
 
-  // Add / Edit announcement
+  
   annForm.addEventListener("submit", e => {
     e.preventDefault();
     const data = {
