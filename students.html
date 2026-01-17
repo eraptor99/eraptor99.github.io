@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Student List</title>
   <meta charset="UTF-8">
+  <title>Student List</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Bootstrap CSS -->
@@ -10,79 +10,75 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    table tbody tr:hover {
-      background-color: #f0f8ff;
-      cursor: pointer;
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #f0f8ff, #ffffff);
+      padding: 20px;
     }
-    input, select, button {
+
+    h2 { margin-bottom: 20px; }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 70%;
+      margin-top: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      border-radius: 6px;
+    }
+
+    thead th {
+      background-color: #343a40;
+      color: white;
+    }
+
+    tbody tr:hover {
+      background-color: #e9f7ff;
+      transform: scale(1.01);
+      transition: all 0.15s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    tbody tr:nth-of-type(odd) {
+      background-color: rgba(0,0,0,0.02);
+    }
+
+    .btn-back {
+      margin-top: 20px;
       border-radius: 8px;
+      transition: all 0.15s;
     }
-    .badge-active { background-color: #28a745; color: white; }
-    .badge-inactive { background-color: #dc3545; color: white; }
-    .card { border-radius: 12px; }
+
+    .btn-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
-<body class="p-4 bg-light">
+<body>
 
-<div class="container">
+<h2>Student List</h2>
 
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>👩‍🎓 Student List</h2>
-    <a href="dashboard.html" class="btn btn-secondary">Back</a>
-  </div>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Student ID</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="studentTable">
+    <!-- Firebase data will load here -->
+  </tbody>
+</table>
 
-  <!-- Add Student Form -->
-  <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-primary text-white">Add / Edit Student</div>
-    <div class="card-body">
-      <form id="studentForm" class="row g-3">
-
-        <div class="col-md-4">
-          <label class="form-label">Name</label>
-          <input type="text" class="form-control" id="name" placeholder="e.g. Ali" required>
-        </div>
-
-        <div class="col-md-4">
-          <label class="form-label">Student ID</label>
-          <input type="text" class="form-control" id="studentId" placeholder="e.g. S001" required>
-        </div>
-
-        <div class="col-md-4">
-          <label class="form-label">Status</label>
-          <select class="form-select" id="status" required>
-            <option value="">Choose...</option>
-            <option>Active</option>
-            <option>Inactive</option>
-          </select>
-        </div>
-
-        <div class="col-12">
-          <button class="btn btn-success w-100">Save Student</button>
-        </div>
-
-      </form>
-    </div>
-  </div>
-
-  <!-- Student Table -->
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <table class="table table-hover">
-        <thead class="table-dark">
-          <tr>
-            <th>Name</th>
-            <th>Student ID</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="studentTable"></tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
+<a href="dashboard.html" class="btn btn-secondary btn-back">Back</a>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -102,81 +98,35 @@
   const db = firebase.firestore();
 
   const table = document.getElementById("studentTable");
-  const form = document.getElementById("studentForm");
-  const nameInput = document.getElementById("name");
-  const idInput = document.getElementById("studentId");
-  const statusInput = document.getElementById("status");
 
-  let editId = null; // Track student being edited
-
-  // Load students
-  function loadStudents() {
+  window.addEventListener("DOMContentLoaded", () => {
     table.innerHTML = "";
-    db.collection("students").orderBy("Name").get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
+    db.collection("students").get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
           const data = doc.data();
+
           const row = document.createElement("tr");
 
-          const statusClass = data.Status === "Active" ? "badge-active" : "badge-inactive";
+          const cellName = document.createElement("td");
+          cellName.textContent = data.Name || data.name || "-";
+          row.appendChild(cellName);
 
-          row.innerHTML = `
-            <td>${data.Name}</td>
-            <td>${data.StudentId}</td>
-            <td><span class="badge ${statusClass}">${data.Status}</span></td>
-            <td>
-              <button class="btn btn-sm btn-warning me-1">Edit</button>
-              <button class="btn btn-sm btn-danger">Delete</button>
-            </td>
-          `;
+          const cellId = document.createElement("td");
+          cellId.textContent = data.StudentId || data.studentId || "-";
+          row.appendChild(cellId);
 
-          // Edit button
-          row.querySelector(".btn-warning").addEventListener("click", () => {
-            nameInput.value = data.Name;
-            idInput.value = data.StudentId;
-            statusInput.value = data.Status;
-            editId = doc.id;
-          });
-
-          // Delete button
-          row.querySelector(".btn-danger").addEventListener("click", () => {
-            if (confirm(`Delete ${data.Name}?`)) {
-              db.collection("students").doc(doc.id).delete().then(loadStudents);
-            }
-          });
+          const cellStatus = document.createElement("td");
+          cellStatus.textContent = data.Status || data.status || "-";
+          row.appendChild(cellStatus);
 
           table.appendChild(row);
         });
       })
-      .catch(err => console.error("Firestore error:", err));
-  }
-
-  loadStudents();
-
-  // Add or update student
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-
-    const studentData = {
-      Name: nameInput.value,
-      StudentId: idInput.value,
-      Status: statusInput.value
-    };
-
-    if (editId) {
-      // Update existing
-      db.collection("students").doc(editId).set(studentData).then(() => {
-        form.reset();
-        editId = null;
-        loadStudents();
+      .catch(err => {
+        console.error("Failed to load students:", err);
+        alert("Failed to load students");
       });
-    } else {
-      // Add new
-      db.collection("students").add(studentData).then(() => {
-        form.reset();
-        loadStudents();
-      });
-    }
   });
 </script>
 
