@@ -43,24 +43,88 @@
 </head>
 <body class="p-4">
 
-<!-- Header with Logout top-right -->
+<!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2>Student Dashboard</h2>
   <button id="logoutBtn" class="btn btn-danger">Logout</button>
 </div>
 
-<!-- Dashboard cards -->
-<div class="dashboard-cards">
-  <a href="students.html" class="dashboard-card">
-    <h3>Student List</h3>
-    View all students
-  </a>
+<!-- Stats Row -->
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <h5>Total Students</h5>
+        <h2 id="totalStudents">3</h2>
+      </div>
+    </div>
+  </div>
 
-  <a href="schedule.html" class="dashboard-card">
-    <h3>Class Schedule</h3>
-    Check the weekly timetable
-  </a>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <h5>Active</h5>
+        <h2 class="text-success">2</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <h5>Inactive</h5>
+        <h2 class="text-danger">1</h2>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Navigation Cards -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <a href="students.html" class="card shadow-sm text-decoration-none text-dark">
+      <div class="card-body">
+        <h4>📋 Student List</h4>
+        <p>View all registered students</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-6">
+    <a href="schedule.html" class="card shadow-sm text-decoration-none text-dark">
+      <div class="card-body">
+        <h4>📅 Class Schedule</h4>
+        <p>View weekly timetable</p>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- Announcements -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h4>📢 Announcements</h4>
+    <ul>
+      <li>Midterm exams start next week</li>
+      <li>New students added to the system</li>
+      <li>Schedule updated for Friday</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4>🕒 Recent Activity</h4>
+    <ul>
+      <li>Ali marked as Active</li>
+      <li>Aisyah added to Student List</li>
+      <li>Schedule updated</li>
+    </ul>
+  </div>
+</div>
+
+</body>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
